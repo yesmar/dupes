@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: BSD-2-Clause
+
+// The dupes program identifies duplicate files in the file systems specified on the command line.
 package main
 
 import (
@@ -31,7 +33,7 @@ type runtime struct {
 	successMsg func(w io.Writer, format string, a ...interface{})
 }
 
-func hashFile(pathname string, rt runtime) (hash []byte, ok bool) {
+func hashFile(pathname string, rt *runtime) (hash []byte, ok bool) {
 	f, err := os.Open(pathname)
 	if err != nil {
 		msg := strings.Split(err.Error(), ":")
@@ -54,7 +56,7 @@ func hashFile(pathname string, rt runtime) (hash []byte, ok bool) {
 	return hasher.Sum(nil), true
 }
 
-func processFile(fi os.FileInfo, pathname string, rt runtime) bool {
+func processFile(fi os.FileInfo, pathname string, rt *runtime) bool {
 	if fi.Mode().IsRegular() && fi.Size() > 0 {
 		h, ok := hashFile(pathname, rt)
 		if ok {
@@ -74,7 +76,7 @@ func processFile(fi os.FileInfo, pathname string, rt runtime) bool {
 	return false
 }
 
-func processDirectory(dirname string, rt runtime) (count uint, err error) {
+func processDirectory(dirname string, rt *runtime) (count uint, err error) {
 	files, err := ioutil.ReadDir(dirname)
 	if err != nil {
 		msg := strings.Split(err.Error(), ":")
@@ -99,7 +101,7 @@ func processDirectory(dirname string, rt runtime) (count uint, err error) {
 	return count, nil
 }
 
-func processTarget(pathname string, rt runtime) (count uint, err error) {
+func processTarget(pathname string, rt *runtime) (count uint, err error) {
 	fi, err := os.Stat(pathname)
 	if err != nil {
 		// This is safe because func (*PathError) Error takes the form "{op} {path}: {error}".
@@ -152,7 +154,7 @@ func main() {
 	}
 
 	for _, target := range flag.Args() {
-		count, err := processTarget(target, rt)
+		count, err := processTarget(target, &rt)
 		if err != nil {
 			os.Exit(1) // Error message has already been displayed.
 		}
