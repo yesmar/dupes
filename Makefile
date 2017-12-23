@@ -1,7 +1,12 @@
 include config.mk
 
+goflags := -ldflags "-s -w -X main.release=$(release)"
+
 $(cmd): config.mk $(sources)
-	go build -ldflags "-s -w -X main.release=$(release)" -o $(cmd)
+	go build $(goflags) -o $@
+
+install:
+	go install $(goflags)
 
 clean:
 	rm -f $(cmd)
