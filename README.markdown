@@ -1,10 +1,10 @@
-# dupes
+# Dupes
 
 [![Build Status](https://img.shields.io/travis/yesmar/dupes.svg)](https://travis-ci.org/yesmar/dupes)
 &nbsp;
 ![Platforms](https://img.shields.io/badge/platform-macOS%20|%20Linux%20|%20Windows-lightgrey.svg)
 
-`dupes` identifies duplicate files within the user-specified set of target files and directories. It does this by walking the specified file systems, computing and comparing SHA-256 hashes of the files it encounters. Any hash that has been seen previously is considered a duplicate.
+The `dupes` command identifies duplicate files within the user-specified set of target files and directories. It does this by walking the specified file systems, computing and comparing SHA-256 hashes of the files it encounters. Any hash that has been seen previously is considered a duplicate.
 
 Important considerations:
 
@@ -57,13 +57,13 @@ dupes /tmp | xargs ls -l
 
 Pass the `-verbose` flag if you wish to see additional information. Verbose output is incompatible with `xargs` so it is output to `stderr` as a safeguard.
 
-Duplicate pathnames containing embedded spaces causes problems for `xargs` and friends. If you had been using `find`, you could have passed it the `-print0` switch and invoked `xargs` with `-0`. Although `dupes` does not have a `-print0` option, it can be simulated using `sed`:
+Duplicate pathnames containing embedded spaces causes problems for `xargs` and friends. If you had been using `find`, you could have passed it the `-print0` switch and invoked `xargs` with `-0`. Although `dupes` does not have a `-print0` option, it can be simulated using `sed` to quote the strings:
 
 ```bash
 dupes /var 2>/dev/null | sed 's/.*/"&"/' | xargs ls -l
 ```
 
-## Notes for Windows Users
+## Notes for Windows users
 
 Color output is not working as expected in Windows 10 consoles. Until a proper fix can be implemented, use the `-no-color` flag when running `dupes.exe`.
 
