@@ -6,10 +6,10 @@ $(cmd): config.mk $(sources)
 	go build -o $@ $(goflags)
 
 install: config.mk $(sources)
-	go install $(goflags)
+	go install -a $(goflags)
 
 clean:
-	rm -f $(cmd)
+	@go clean -x
 
 count:
 	@cloc $(sources)
