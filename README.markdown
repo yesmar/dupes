@@ -1,5 +1,7 @@
 # dupes
 
+[![Build Status](https://img.shields.io/travis/yesmar/dupes.svg)](https://travis-ci.org/yesmar/dupes)
+&nbsp;
 ![Platforms](https://img.shields.io/badge/platform-macOS%20|%20Linux%20|%20Windows-lightgrey.svg)
 
 `dupes` identifies duplicate files within the user-specified set of target files and directories. It does this by walking the specified file systems, computing and comparing SHA-256 hashes of the files it encounters. Any hash that has been seen previously is considered a duplicate.
