@@ -1,7 +1,7 @@
 include config.mk
 
 $(cmd): config.mk $(sources)
-	go build -ldflags "-s -w -X main.release=$(version)$(commit)" -o $(cmd)
+	go build -ldflags "-s -w -X main.release=$(release)" -o $(cmd)
 
 clean:
 	rm -f $(cmd)

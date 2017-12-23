@@ -1,5 +1,7 @@
 # dupes
 
+![Platforms](https://img.shields.io/badge/platform-macOS%20|%20Linux%20|%20Windows-lightgrey.svg)
+
 `dupes` identifies duplicate files within the user-specified set of target files and directories. It does this by walking the specified file systems, computing and comparing SHA-256 hashes of the files it encounters. Any hash that has been seen previously is considered a duplicate.
 
 Important considerations:
@@ -59,10 +61,24 @@ Duplicate pathnames containing embedded spaces causes problems for `xargs` and f
 dupes /var 2>/dev/null | sed 's/.*/"&"/' | xargs ls -l
 ```
 
+## Notes for Windows Users
+
+Color output is not working as expected in Windows 10 consoles. Until a proper fix can be implemented, use the `-no-color` flag when running `dupes.exe`.
+
+Alas, the above examples make use of `xargs`, which is not a native Windows program. There are a number of `xargs` implementations for Windows. Feel free to use one. Alternately, you can run `dupes.exe` from a Git Bash window and pipe output to `xargs`.
+
+Building from source is not currently as easy/fun as it is on Linux and macOS. Windows uses `nmake`, and `Makefile` and `config.mk` are written for GNU Make. But don't worry. It's easy to approximate things. Just `type config.mk`, remember the version number and type:
+
+```bash
+go build -ldflags "-s -w -X main.release=VERSION" -o dupes.exe
+```
+
+Replace `VERSION` with the version number you saw in `config.mk`, e.g., `1.1.0`.
+
 ## Credits
 
 - [Ramsey Dow](https://github.com/yesmar)
 
 ## License
 
-The BSD 2-clause "Simplified" License. See the [`LICENSE`](https://github.com/yesmar/dupes/LICENSE) file for more details.
+The BSD 2-clause "Simplified" License. See the [`LICENSE`](https://github.com/yesmar/dupes/blob/master/LICENSE) file for more details.

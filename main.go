@@ -11,23 +11,24 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 
 	"github.com/fatih/color"
 )
 
 var (
-	cmd        = path.Base(os.Args[0])
-	release    string
-	failMsg    = color.New(color.FgRed).FprintfFunc()
-	statusMsg  = color.New(color.FgCyan).FprintfFunc()
-	successMsg = color.New(color.FgGreen).FprintfFunc()
+	cmd     = filepath.Base(os.Args[0])
+	release string
 )
 
 type runtime struct {
-	noColor bool
-	verbose bool
-	files   map[string]string
+	noColor    bool
+	verbose    bool
+	files      map[string]string
+	failMsg    func(w io.Writer, format string, a ...interface{})
+	statusMsg  func(w io.Writer, format string, a ...interface{})
+	successMsg func(w io.Writer, format string, a ...interface{})
 }
 
 func hashFile(pathname string, rt runtime) (hash []byte, ok bool) {
@@ -35,19 +36,19 @@ func hashFile(pathname string, rt runtime) (hash []byte, ok bool) {
 	if err != nil {
 		msg := strings.Split(err.Error(), ":")
 		err = errors.New(pathname + ":" + msg[1])
-		failMsg(os.Stderr, "%s\n", err)
+		rt.failMsg(os.Stderr, "%s\n", err)
 		return nil, false
 	}
 	defer func() {
 		if err := f.Close(); err != nil {
-			failMsg(os.Stderr, "%s\n", err)
+			rt.failMsg(os.Stderr, "%s\n", err)
 			hash = nil
 			ok = false
 		}
 	}()
 	hasher := sha256.New()
 	if _, err := io.Copy(hasher, f); err != nil {
-		failMsg(os.Stderr, "%s\n", err)
+		rt.failMsg(os.Stderr, "%s\n", err)
 		return nil, false
 	}
 	return hasher.Sum(nil), true
@@ -60,11 +61,9 @@ func processFile(fi os.FileInfo, pathname string, rt runtime) bool {
 			s := hex.EncodeToString(h)
 			f, ok := rt.files[s]
 			if ok {
+				fmt.Println(pathname)
 				if rt.verbose {
-					fmt.Fprintf(os.Stderr, "%s duplicates %s → ", pathname, f) // nolint: gas
-					statusMsg(os.Stderr, "%s\n", s)
-				} else {
-					fmt.Println(pathname)
+					rt.statusMsg(os.Stderr, "-> duplicates %s %s\n", f, s)
 				}
 			} else {
 				rt.files[s] = pathname
@@ -80,7 +79,7 @@ func processDirectory(dirname string, rt runtime) (count uint, err error) {
 	if err != nil {
 		msg := strings.Split(err.Error(), ":")
 		err = errors.New(dirname + ":" + msg[1])
-		failMsg(os.Stderr, "%s\n", err)
+		rt.failMsg(os.Stderr, "%s\n", err)
 	}
 	for _, fi := range files {
 		pathname := path.Join(dirname, fi.Name())
@@ -88,7 +87,7 @@ func processDirectory(dirname string, rt runtime) (count uint, err error) {
 			// Process directory.
 			c, err := processTarget(pathname, rt)
 			if err != nil {
-				failMsg(os.Stderr, "%s\n", err)
+				rt.failMsg(os.Stderr, "%s\n", err)
 			}
 			count += c
 		} else {
@@ -107,7 +106,7 @@ func processTarget(pathname string, rt runtime) (count uint, err error) {
 		// I'm doing this because I don't want the {op} part of the error message.
 		msg := strings.Split(err.Error(), ":")
 		err = errors.New(pathname + ":" + msg[1])
-		failMsg(os.Stderr, "%s\n", err)
+		rt.failMsg(os.Stderr, "%s\n", err)
 		return 0, err
 	}
 
@@ -115,7 +114,7 @@ func processTarget(pathname string, rt runtime) (count uint, err error) {
 	if fi.IsDir() {
 		count, err = processDirectory(pathname, rt)
 		if err != nil {
-			failMsg(os.Stderr, "%s\n", err)
+			rt.failMsg(os.Stderr, "%s\n", err)
 		}
 		return count, nil
 	}
@@ -136,7 +135,7 @@ func main() {
 	flag.Parse()
 
 	if *flagVersion {
-		statusMsg(os.Stderr, "%s %s\n", cmd, release)
+		fmt.Fprintf(os.Stderr, "%s %s\n", cmd, release) // nolint: gas
 		os.Exit(0)
 	}
 
@@ -144,6 +143,9 @@ func main() {
 	rt.noColor = *flagNoColor
 	rt.verbose = *flagVerbose
 	rt.files = make(map[string]string)
+	rt.failMsg = color.New(color.FgRed).FprintfFunc()
+	rt.statusMsg = color.New(color.FgCyan).FprintfFunc()
+	rt.successMsg = color.New(color.FgGreen).FprintfFunc()
 
 	if rt.noColor {
 		color.NoColor = true
@@ -156,11 +158,11 @@ func main() {
 		}
 
 		if rt.verbose {
-			successMsg(os.Stderr, "%s: processed %d file", cmd, count)
+			rt.successMsg(os.Stderr, "%s: processed %d file", cmd, count)
 			if count > 1 {
-				successMsg(os.Stderr, "s")
+				rt.successMsg(os.Stderr, "s")
 			}
-			successMsg(os.Stderr, " in %s\n", target)
+			rt.successMsg(os.Stderr, " in %s\n", target)
 		}
 	}
 
