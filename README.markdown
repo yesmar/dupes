@@ -64,6 +64,12 @@ Duplicate pathnames containing embedded spaces causes problems for `xargs` and f
 dupes /var 2>/dev/null | sed 's/.*/"&"/' | xargs ls -l
 ```
 
+Alternately, use the simpler form:
+
+```bash
+dupes /var 2>/dev/null | xargs -I{} ls -l {}
+```
+
 ## Notes for Windows users
 
 Color output is not working as expected in Windows 10 consoles. Until a proper fix can be implemented, use the `-no-color` flag when running `dupes.exe`.
