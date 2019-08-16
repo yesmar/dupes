@@ -12,7 +12,7 @@ Important considerations:
 - Zero-length files serve as a trigger mechanism on many operating systems. Removing such files could have negative effects, so `dupes` completely ignores empty files.
 - Symbolic links *will* be followed, which could lead to trouble should a cycle be encountered. `dupes` assumes that you know what you are doing and understand the file systems you intend to run it on.
 
-The author uses `dupes` to identify and delete duplicate images downloaded from [imgur](https://imgur.com).
+The author uses `dupes` to identify and delete duplicate images downloaded while satisfying his [imgur](https://imgur.com) addiction.
 
 ## Install
 
@@ -20,19 +20,13 @@ The author uses `dupes` to identify and delete duplicate images downloaded from 
 go get github.com/yesmar/dupes
 ```
 
-Note that the `vendor` directory is here for stability. Remove it if you already have the dependencies in your `GOPATH`.
-
 ## Usage
 
 ```bash
 Usage: dupes [flags] <pathname> […]
 ```
 
-| Flag | Description |
-| :--- | :--- |
-| `-no-color` | Disable color output |
-| `-verbose` | Verbose output |
-| `-version` | Display version information |
+Currently, `dupes` understands the `-verbose` and `-version` flags. Use the `-verbose` flag to enable additional output. Pass the `-version` flag to display version information.
 
 You can pass any combination of files and directory pathnames to `dupes`. The pathnames of duplicate files are output, one to a line. To do something further with these pathnames, pipe `stdout` to `xargs` or a similar program.
 
@@ -50,7 +44,7 @@ Any errors encountered will be output in alarming red on `stderr`. If you do not
 dupes /var 2>/dev/null
 ```
 
-Output from `dupes` can be piped to `xargs` to perform operations on duplicate files, e.g.:
+Output from `dupes` can be piped to `xargs` to perform operations on duplicate files, _e.g._:
 
 ```bash
 dupes /tmp | xargs ls -l
@@ -72,17 +66,15 @@ dupes /var 2>/dev/null | xargs -I{} ls -l {}
 
 ## Notes for Windows users
 
-Color output is not working as expected in Windows 10 consoles. Until a proper fix can be implemented, use the `-no-color` flag when running `dupes.exe`.
+All of the above examples make use of `xargs`, which is not a native Windows program. However, `xargs` implementations for Windows do exist. Alternately, you can run `dupes.exe` from a Git Bash window and pipe the output to `xargs`.
 
-Alas, the above examples make use of `xargs`, which is not a native Windows program. There are a number of `xargs` implementations for Windows. Feel free to use one. Alternately, you can run `dupes.exe` from a Git Bash window and pipe output to `xargs`.
-
-Building from source is not currently as easy/fun as it is on Linux and macOS. Windows uses `nmake`, and `Makefile` and `config.mk` are written for GNU Make. But don't worry. It's easy to approximate things. Just `type config.mk`, remember the version number and type:
+Building from source is not currently as easy/fun as it is on Linux and macOS. Windows uses `nmake`, and `Makefile` and `config.mk` are written for GNU Make, but don't worry. It is easy to approximate things. Just `type config.mk`, remember the version number, and type:
 
 ```bash
 go build -ldflags "-s -w -X main.release=VERSION" -o dupes.exe
 ```
 
-Replace `VERSION` with the version number you saw in `config.mk`, e.g., `1.1.0`.
+Replace `VERSION` with the version number you saw in `config.mk`, _e.g._, `1.2.0`.
 
 ## Credits
 
