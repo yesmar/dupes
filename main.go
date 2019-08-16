@@ -124,18 +124,18 @@ func processTarget(pathname string, rt *runtime) (count uint, err error) {
 }
 
 func main() {
-	var flagVerbose = flag.Bool("verbose", false, "Verbose output")
-	var flagVersion = flag.Bool("version", false, "Display version information")
+	var verbose = flag.Bool("verbose", false, "Verbose output")
+	var version = flag.Bool("version", false, "Display version information")
 
 	flag.Parse()
 
-	if *flagVersion {
+	if *version {
 		fmt.Fprintf(os.Stderr, "%s %s\n", cmd, release) // nolint: gas
 		os.Exit(0)
 	}
 
 	var rt runtime
-	rt.verbose = *flagVerbose
+	rt.verbose = *verbose
 	rt.files = make(map[string]string)
 
 	for _, target := range flag.Args() {
